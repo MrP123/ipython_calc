@@ -6,7 +6,7 @@ import pint
 
 import os
 import sys, pprint
-from types import ModuleType
+from types import ModuleType, FunctionType
 sys.displayhook = pprint.pprint
 
 ureg = pint.UnitRegistry(autoconvert_to_preferred=True)
@@ -23,14 +23,37 @@ ureg.default_preferred_units = [
 ]
 
 def workspace():
+    """
+    List all variables in the current active python shell
+    """
     tmp = globals().copy()
-    [print(F"{k}:\t{v}\ttype={type(v)}") for k, v in tmp.items() if not k.startswith('_') and k!='tmp' and k!='In' and k!='Out' and not hasattr(v, '__call__') and not isinstance(v, ModuleType)]
+    [print(F"{k}:\t{v}\ttype={type(v)}") for k, v in tmp.items() if not k.startswith('_') and k!='tmp' and k!='In' and k!='Out' and not callable(v) and not isinstance(v, ModuleType)]
 
 def modules():
+    """
+    List all modules in the current active python shell
+    """
     tmp = globals().copy()
     [print(F"{k}:\t{v}\ttype={type(v)}") for k, v in tmp.items() if isinstance(v, ModuleType)]
 
+def functions():
+    """
+    List all functions in the current active python shell
+    """
+    tmp = globals().copy()
+    for k, v in tmp.items():
+        if not k.startswith('_') and isinstance(v, FunctionType):
+            doc_string = v.__doc__.strip() if v.__doc__ else ''
+            print(F"{k}:\t{doc_string}")
+
 def cls():
+    """
+    Clears the console
+    """
     os.system('cls')
+
 def clc():
+    """
+    Clears the console
+    """
     cls()
