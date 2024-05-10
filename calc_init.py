@@ -4,6 +4,8 @@ import numpy as np
 #import scipy
 import pint
 
+from IPython.core.autocall import IPyAutocall
+
 import os
 import sys, pprint
 from types import ModuleType, FunctionType
@@ -34,26 +36,23 @@ def modules():
     List all modules in the current active python shell
     """
     tmp = globals().copy()
-    [print(F"{k}:\t{v}\ttype={type(v)}") for k, v in tmp.items() if isinstance(v, ModuleType)]
+    [print(F"{k}:\t{v}\ttype={type(v)}") for k, v in tmp.items() if isinstance(v, ModuleType) and not k.startswith('_')]
 
 def functions():
     """
     List all functions in the current active python shell
     """
+    not_print = ["open"]
     tmp = globals().copy()
     for k, v in tmp.items():
-        if not k.startswith('_') and isinstance(v, FunctionType):
-            doc_string = v.__doc__.strip() if v.__doc__ else ''
+        if not k.startswith('_') and isinstance(v, FunctionType) and not k in not_print:
+            doc_string = v.__doc__.strip() if v.__doc__ else "No docstring available"
             print(F"{k}:\t{doc_string}")
 
-def cls():
-    """
-    Clears the console
-    """
-    os.system('cls')
+class ClearAutocall(IPyAutocall):
+    rewrite = False
+    
+    def __call__(self):
+        os.system('cls')
 
-def clc():
-    """
-    Clears the console
-    """
-    cls()
+clc = cls = ClearAutocall()
